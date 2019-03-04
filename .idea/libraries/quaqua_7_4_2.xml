@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="quaqua-7.4.2">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/osx_legacy/quaqua-7.4.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

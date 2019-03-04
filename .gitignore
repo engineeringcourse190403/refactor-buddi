@@ -1,0 +1,4 @@
+bin/
+build/
+etc/ant.properties
+out
