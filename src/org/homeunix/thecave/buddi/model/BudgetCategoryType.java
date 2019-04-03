@@ -48,10 +48,6 @@ public abstract class BudgetCategoryType {
 		return getBudgetPeriodOffset(date, 1);
 	}
 
-	public Date getStartOfPreviousBudgetPeriod(Date date) {
-		return getBudgetPeriodOffset(date, -1);
-	}
-	
 	/**
 	 * Returns the date format associated with this budget period type.  This is
 	 * used in the My Budgets window to format the date spinner and the column 

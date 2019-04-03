@@ -12,7 +12,10 @@ import org.homeunix.thecave.buddi.model.ModelObject;
 import org.homeunix.thecave.buddi.plugin.api.exception.DataModelProblemException;
 import org.homeunix.thecave.buddi.plugin.api.exception.InvalidValueException;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Default implementation of an BudgetCategory.  You should not create this object directly;
@@ -105,24 +108,16 @@ public class BudgetCategoryImpl extends SourceImpl implements BudgetCategory {
     }
 
     private long getAmount(Period period) {
-        //If Start and End are in the same budget period
-        BudgetPeriod firstBudgetPeriod = firstBudgetPeriod(period);
-        BudgetPeriod lastBudgetPeriod = lastBudgetPeriod(period);
-        if (firstBudgetPeriod.equals(lastBudgetPeriod)) {
-            return (long) getAmountInPeriod(period);
-        }
+        return (long) firstBudgetPeriod(period).getBudgetPeriods(lastBudgetPeriod(period)).stream().
+                mapToDouble(budgetPeriod -> getAmountOfOverlappingDays(period, budgetPeriod)).
+                sum();
+    }
 
-        double totalStartPeriod = getAmountInPeriod(new Period(period.getStartDate(), firstBudgetPeriod.getEndDate()));
-
-        double totalInMiddle = 0;
-        for (BudgetPeriod budgetPeriod : getBudgetPeriods(
-                firstBudgetPeriod.nextBudgetPeriod().getStartDate(),
-                lastBudgetPeriod.previousPeriod().getStartDate(), firstBudgetPeriod.nextBudgetPeriod(), lastBudgetPeriod.previousPeriod())) {
-            totalInMiddle += getAmountOfBudgetPeriod(budgetPeriod.getStartDate());
-        }
-
-        double totalEndPeriod = getAmountInPeriod(new Period(lastBudgetPeriod.getStartDate(), period.getEndDate()));
-        return (long) (totalStartPeriod + totalInMiddle + totalEndPeriod);
+    private double getAmountOfOverlappingDays(Period period, BudgetPeriod firstBudgetPeriod) {
+        long amount = getAmountOfBudgetPeriod(firstBudgetPeriod.getStartDate());
+        long daysInPeriod = firstBudgetPeriod.getDayCount();
+        long daysBetween = period.getOverlappingDayCount(firstBudgetPeriod.getPeriod());
+        return (double) amount / (double) daysInPeriod * daysBetween;
     }
 
     private BudgetPeriod lastBudgetPeriod(Period period) {
@@ -131,40 +126,6 @@ public class BudgetCategoryImpl extends SourceImpl implements BudgetCategory {
 
     private BudgetPeriod firstBudgetPeriod(Period period) {
         return new BudgetPeriod(getBudgetPeriodType(), period.getStartDate());
-    }
-
-    private double getAmountInPeriod(Period period) {
-        long amount = getAmountOfBudgetPeriod(period.getStartDate());
-        long daysInPeriod = getBudgetPeriodType().getDaysInPeriod(period.getStartDate());
-        long daysBetween = period.getDayCount();
-        return (double) amount / (double) daysInPeriod * daysBetween;
-    }
-
-    /**
-     * Returns a list of BudgetPeriods, covering the entire range of periods
-     * occupied by startDate to endDate.
-     *
-     * @param startDate
-     * @param endDate
-     * @param beginBudgetPeriod
-     * @param endBudgetPeriod
-     * @return
-     */
-    public List<BudgetPeriod> getBudgetPeriods(Date startDate, Date endDate, BudgetPeriod beginBudgetPeriod, BudgetPeriod endBudgetPeriod) {
-        List<String> budgetPeriodKeys = new LinkedList<String>();
-        List<BudgetPeriod> budgetPeriods = new LinkedList<>();
-
-        Date temp = getBudgetPeriodType().getStartOfBudgetPeriod(startDate);
-        BudgetPeriod current = beginBudgetPeriod;
-
-        while (current.getStartDate().before(endBudgetPeriod.getEndDate())) {
-            budgetPeriodKeys.add(getPeriodKey(temp));
-            budgetPeriods.add(current);
-            temp = getBudgetPeriodType().getBudgetPeriodOffset(temp, 1);
-            current = current.nextBudgetPeriod();
-        }
-
-        return budgetPeriods;
     }
 
     /**
