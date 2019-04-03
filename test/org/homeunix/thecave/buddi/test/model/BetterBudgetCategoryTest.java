@@ -1,14 +1,14 @@
 package org.homeunix.thecave.buddi.test.model;
 
-import static org.junit.Assert.assertEquals;
+import org.homeunix.thecave.buddi.model.impl.BudgetCategoryImpl;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.homeunix.thecave.buddi.model.impl.BudgetCategoryImpl;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 public class BetterBudgetCategoryTest {
 
@@ -45,7 +45,7 @@ public class BetterBudgetCategoryTest {
 	public void getAmountOfARangeTwoNeigbouringBudgetPeriods() throws Exception {
 		bc.setAmount(twentyJune2011, 300);
 		bc.setAmount(secondOfJuly2011, 31);
-		assertEquals(114, bc.getAmount(twentyJune2011, fourthOfJuly2011));
+		assertEquals(10*11 + 1*4, bc.getAmount(twentyJune2011, fourthOfJuly2011));
 	}
 	
 	@Test
