@@ -16,7 +16,7 @@ public interface BudgetCategory extends Source, Expandable {
 	 * @param periodDate
 	 * @return
 	 */
-	public long getAmount(Date periodDate);
+	public long getAmountOfBudgetPeriod(Date periodDate);
 	
 	/**
 	 * Returns the budgeted amount associated with this budget category, over
